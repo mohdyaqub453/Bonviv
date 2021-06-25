@@ -13,6 +13,7 @@ public class dataset {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		System.out.print("jdo");
 		Model model = ModelFactory.createDefaultModel();
 		model.read("example.jsonld") ;
 		model.write(System.out,"turtle");

@@ -8,7 +8,7 @@ import org.apache.jena.query.*;
 public class start {
 
 	public static void main(String[] args) {
-		
+		System.out.println("jdo");
 		String URI = "https://abc/animal";
 		Model m = ModelFactory.createDefaultModel();
         
@@ -65,7 +65,7 @@ public class start {
 		
 		
 		//query from fuseki server
-		/*
+		
 		String service = "http://localhost:3030/first";
 		String query1 = "\r\n"
 				+"prefix ab: <http://learningsparql.com/ns/addressbook#>\r\n"
@@ -98,7 +98,7 @@ public class start {
             System.out.println("\n---- JSON ----");
             ResultSetFormatter.outputAsJSON(System.out, results);
             results.reset();
-		}*/
+		}
 	}
 
 }
