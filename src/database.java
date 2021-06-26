@@ -19,14 +19,19 @@ import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.atlas.json.JsonValue;
 import java.util.List;
 import org.apache.jena.graph.Node;
+import java.io.IOException;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 public class database {
 	
-	public static void main(String[] args) {
-
 	
-		  String directory = "MyDatabases/dataset" ;
+	public JsonArray jsonfromTDB()
+	{
+		String directory = "MyDatabases/dataset" ;
 		  Dataset dataset = TDBFactory.createDataset(directory) ;
 		
 		  dataset.begin(ReadWrite.READ) ;
@@ -50,19 +55,19 @@ public class database {
 					+ "prefix xsd: <http://www.w3.org/2001/XMLSchema#>\r\n"
 					+ "prefix ab: <http://learningsparql.com/ns/addressbook#>\r\n"
 					+ "prefix d:<http://learningsparql.com/ns/data#>\r\n"
-					+ "SELECT ?Title ?Genre ?Author_Name \r\n"
+					+ "SELECT ?title ?genre ?name ?age\r\n"
 					+ "WHERE {\r\n"
 					+ "  \r\n"
-					+ "		?subject  ab:Title ?Title;\r\n"
-					+ "                  ab:Genre ?Genre;\r\n"
+					+ "		?subject  ab:Title ?title;\r\n"
+					+ "                  ab:Genre ?genre;\r\n"
 					+ "                  ab:authors ?author.\r\n"
-					+ "         ?author ab:Author_Name ?Author_Name;\r\n"
-					+ "                 ab:Age ?Author_age.\r\n"
+					+ "         ?author ab:Author_Name ?name;\r\n"
+					+ "                 ab:Age ?age.\r\n"
 					+ "                  \r\n"
 					+ "                  \r\n"
 					+ "\r\n"
 					+ "          \r\n"
-					+ "}";
+					+ "}LIMIT 2";
 			
 			
 		  Query query = QueryFactory.create(querystring);
@@ -74,7 +79,7 @@ public class database {
 		        //queryIterator = qexec.execSelect();
 		        
 		        List<String> resultVars = query.getResultVars() ; 
-		        System.out.println(resultVars);
+		        //System.out.println(resultVars);
 		        Op op = Algebra.compile(query) ;
 		        op = Algebra.optimize(op) ;
 		        QueryIterator queryIterator = Algebra.exec(op, dataset) ;
@@ -90,19 +95,71 @@ public class database {
 		            jsonArray.add(jsonObject) ;
 		        }
 			         
-			          System.out.println(jsonArray);
-				/*while(result.hasNext()) {
-					QuerySolution soln = result.nextSolution();
-					RDFNode Title = soln.get("?Title");
-					RDFNode author = soln.get("?Author_Name");
-					System.out.println("Title "+ Title + "   Author "+ author);
-				}
-			}
-			finally {
-				qexec.close();
-			}*/
-			}
-
+			    return jsonArray;		
+	}
 	
+	public static void main(String[] args) {
 
+	   database db =  new database();
+	   JsonArray output = db.jsonfromTDB();
+	   String jsonString = output.toString();
+	   
+	   ObjectMapper mapper = new ObjectMapper();
+	      //map json to student
+	      try{
+	         Book[] book = mapper.readValue(jsonString, Book[].class);
+	         
+	         for (Book itr : book) {
+	        	   System.out.println("Title of Book is : " + itr.getTitle());
+	        	   System.out.println("Genre is : " + itr.getGenre());
+	        	    System.out.println("Name of Author is : " + itr.getName());
+	        	    System.out.println("Age of Author is: " + itr.getAge());
+	        	    
+	        	}
+	         
+	         jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(book);
+	         
+	        // System.out.println(jsonString);
+	      }
+	      catch (JsonParseException e) { e.printStackTrace();}
+	      catch (JsonMappingException e) { e.printStackTrace(); }
+	      catch (IOException e) { e.printStackTrace(); }
+}
+}
+
+
+
+class Book {
+	   private String title;
+	   private String genre;
+	   private String name;
+	   private String age;
+	   public Book(){}
+	   public String getTitle() {
+		   return title;
+	   }
+	   public void setTitle(String title) {
+		   this.title = title;
+	   }
+	   public String getGenre() {
+		   return genre;
+	   }
+	   public void setGenre(String genre) {
+		   this.genre = genre;
+	   }
+	   public String getName() {
+	      return name;
+	   }
+	   public void setName(String name) {
+	      this.name = name;
+	   }
+	   public String getAge() {
+	      return age;
+	   }
+	   public void setAge(String age) {
+	      this.age = age;
+	   }
+	   public String toString(){
+		      return "Book [ name: "+name+", age: "+ age+ " ]";
+	}
 }
